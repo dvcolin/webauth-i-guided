@@ -12,17 +12,6 @@ server.use(helmet());
 server.use(express.json());
 server.use(cors());
 
-server.get('/users', validateCredentials, (req, res) => {
-  Users.find()
-  .then(users => {
-    res.status(200).json(users);
-  })
-  .catch(err => {
-    res.status(500).json({ error: 'Unexpected error' })
-  })
-});
-
-
 
 server.get('/hash', (req, res) => {
   const name = req.query.name;
@@ -63,7 +52,7 @@ server.post('/api/login', (req, res) => {
     });
 });
 
-server.get('/api/users', (req, res) => {
+server.get('/api/users', validateCredentials, (req, res) => {
   Users.find()
     .then(users => {
       res.json(users);
@@ -71,8 +60,6 @@ server.get('/api/users', (req, res) => {
     .catch(err => res.send(err));
 });
 
-const port = process.env.PORT || 5000;
-server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
 
 
 function validateCredentials(req, res, next) {
@@ -88,10 +75,11 @@ function validateCredentials(req, res, next) {
         res.status(401).json({ message: 'Invalid credentials' })
       }
     })
-    .catch(err => {
-      res.status(500).json({ message: 'Unexpected error' });
-    })
   } else {
     res.status(400).json({ message: 'No credentials provided' });
   }
 }
+
+
+const port = process.env.PORT || 5000;
+server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
